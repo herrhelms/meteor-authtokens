@@ -10,5 +10,25 @@ If not, go ahead and
 
 `> meteor add iron:router`
 
+`> meteor add herrhelms:meteor-authtokens`
+
+# basic usage
 
 
+
+# setup  
+
+
+```js
+if(Meteor.isServer) {
+	APISetup.config({
+		quotaRange:'month', 	// lifetime of quota   
+		quotaSize:1000,				// quota in above lifetime
+		keyPrefixLength:2,		// authToken will be formated prefix.StrInG (i.E. ny.ASe24sa)			
+		keyStringLength:7,		// use these two fields to control length of authTokens
+		useWhere:'onRun',			// hook where to excecute with iron:router (onRun||onBeforeAction||onAfterAction||onRerun)
+		useOnly:[],						// filter functionality to ONLY SOME specific route(s)
+		useExcept:[]		// filter functionality to ALL EXCEPT SOME specific route(s)
+	});
+}
+```
