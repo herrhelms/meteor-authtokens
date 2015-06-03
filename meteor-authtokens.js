@@ -26,15 +26,15 @@ if (Meteor.isClient) {
     var clientRequire = function() {
         var route = this;
         var authToken = route.params.query.key;
-        if(!authToken || !route.params.query) {
+        if (!authToken || !route.params.query) {
             Blaze.renderWithData("401 - Request denied. AuthToken is missing!", null, document.body);
             route.stop();
-        } else if(authToken == 0) {
+        } else if (authToken === 0) {
             Blaze.renderWithData("401 - Request denied. AuthToken is missing!", null, document.body);
             route.stop();
         } else {
-            Meteor.call('checkApiKey',authToken,function(err,res) {
-                if(!err && res)  {
+            Meteor.call('checkApiKey', authToken, function(err, res) {
+                if (!err && res) {
                     route.render();
                 } else {
                     Blaze.renderWithData(err.reason, null, document.body);
@@ -42,19 +42,21 @@ if (Meteor.isClient) {
                 }
             });
         }
-    }
+    };
+
     // helper fixing the onBeforeAction notice
-    if(APISetup.useWhere == 'onRun'){
+    if (APISetup.useWhere === 'onRun') {
         Router.onBeforeAction(function() {
             console.log(this);
             this.next();
         });
     }
-    if(!filter) {
+    if (!filter) {
         Router[APISetup.useWhere](clientRequire);
     } else {
-        Router[APISetup.useWhere](clientRequire,filter);
+        Router[APISetup.useWhere](clientRequire, filter);
     }
+
 }
 
 if (Meteor.isServer) {
@@ -172,7 +174,7 @@ if (Meteor.isServer) {
                     // var access = APIStats.update({ref:keyfound.host, "log.day":day},{$inc:{"log.$.count":1}});
                     // console.log(count);
 
-                    console.log('current currentCount.quotaCount left for ' + keyfound.host + ' = '+ currentCount.quotaCount) ;
+                    console.log('current currentCount.quotaCount left for ' + keyfound.host + ' = ' + currentCount.quotaCount);
                     return keyfound.auth;
                 } else {
                     throw new Meteor.Error(401, '401 - Request denied. Quota limit exceeded!');
