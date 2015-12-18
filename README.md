@@ -30,13 +30,13 @@ I have been testing with the standard `accounts-base` && `accounts-ui` packages
 ```js
 if (Meteor.isServer) {
 	APISetup.config({
-		quotaRange: 'month', 	// lifetime of quota
-		quotaSize: 1000,			// quota in above lifetime
-		keyPrefixLength: 2,		// authToken will be formated prefix.StrInG (i.E. ny.ASe24sa)
-		keyStringLength: 7,		// use these two fields to control length of authTokens
-		useWhere: 'onRun',		// hook where to excecute with iron:router (onRun||onBeforeAction||onAfterAction||onRerun)
-		useOnly:['download', 'about'],				// filter functionality to ONLY SOME specific route(s)
-		useExcept:[]			// filter functionality to ALL EXCEPT SOME specific route(s) - EXCEPT will override ONLY(!)
+		quotaRange: 'month', 	    // lifetime of quota
+		quotaSize: 1000,			  // quota in above lifetime
+		keyPrefixLength: 2,		   // authToken will be formated prefix.StrInG (i.E. ny.ASe24sa)
+		keyStringLength: 7,		   // use these two fields to control length of authTokens
+		useWhere: 'onRun',		    // hook where to excecute with iron:router (onRun||onBeforeAction||onAfterAction||onRerun)
+		useOnly:['download', 'about'],  // filter functionality to ONLY SOME specific route(s)
+		useExcept:[]			   // filter functionality to ALL EXCEPT SOME specific route(s) - EXCEPT will override ONLY(!)
 	});
 }
 ```
