@@ -37,8 +37,8 @@ if (Meteor.isServer) {
 		useWhere: 'onRun', // hook where to excecute (onRun||onBeforeAction||onAfterAction||onRerun)
 		useOnly:['download', 'about'], // filter to ONLY SOME specific route(s)
 		useExcept:[], // use on ALL ROUTES EXCEPT SOME specific ones - EXCEPT will override ONLY(!)
-	  noKeyTemplate: 'noaccess', // template to use client side if no ?key=
-  	wrongKeyTemplate: 'wrongaccess' // template to use client side if wrong ?key=
+		noKeyTemplate: 'noaccess', // template to use client side if no ?key=
+		wrongKeyTemplate: 'wrongaccess' // template to use client side if wrong ?key=
   });
 }
 ```
