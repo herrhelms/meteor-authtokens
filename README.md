@@ -5,7 +5,7 @@
 This package provides a lightweight quota and authToken eco-system (ApiKeys) for your meteor project.
 It depends and works well with `iron:router` on defined client and server routes.
 
-# install
+## install
 Please make sure you have the latest version of [iron-router](https://github.com/EventedMind/iron-router) package added to your project.
 If not, go ahead and
 
@@ -22,7 +22,7 @@ I have been testing with the standard `accounts-base` && `accounts-ui` packages
 
 `meteor add herrhelms:meteor-authtokens`
 
-# setup
+## setup
 1.) Find a way so your users can create a `Meteor.user()` object. For instance when using `accounts-ui` package, embed `{{>loginButtons}}` somewhere within your html.
 
 2.) Add the following settings somewhere outside `Meteor.isServer` or `Meteor.isServer` within your code and modify to your liking.
@@ -58,3 +58,9 @@ Router.route('/download', {where: 'server'}).get(function () {
 4.) Look for your personal ApiKey in `Meteor.user().profile.apiKey`
 
 5.) Whenever calling a route that needs the ApiKey **add `?key=YOURAPIKEY` to the URI**.
+
+## Next steps
+
+ - [ ] Admin views for quotas (role based)
+ - [ ] Send optional emails if quota is almost empty
+ - [x] predefined templates `_keyNotFound`, `_keyIsWrong`, `_quotaIsGone`,
