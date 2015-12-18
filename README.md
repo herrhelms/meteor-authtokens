@@ -2,7 +2,7 @@
 
 **Warning:** As of December 18th 2015 this is **WIP until further notice**. Use at own risk.
 
-This package provides a lightweight quota and authToken eco-system for your meteor project.
+This package provides a lightweight quota and authToken eco-system (ApiKeys) for your meteor project.
 It depends and works well with `iron:router` on defined client and server routes.
 
 # install
@@ -30,13 +30,13 @@ I have been testing with the standard `accounts-base` && `accounts-ui` packages
 ```js
 if (Meteor.isServer) {
 	APISetup.config({
-		quotaRange: 'month',        // lifetime of quota
-		quotaSize: 1000,        // quota in above lifetime
-		keyPrefixLength: 2,       // authToken will be formated prefix.StrInG (i.E. ny.ASe24sa)
-		keyStringLength: 7,       // use these two fields to control length of authTokens
-		useWhere: 'onRun',        // hook where to excecute with iron:router (onRun||onBeforeAction||onAfterAction||onRerun)
-		useOnly:['download', 'about'],  // filter functionality to ONLY SOME specific route(s)
-		useExcept:[]        // filter functionality to ALL EXCEPT SOME specific route(s) - EXCEPT will override ONLY(!)
+		quotaRange: 'month', // lifetime of quota
+		quotaSize: 1000, // quota in above lifetime
+		keyPrefixLength: 2, // authTokens will be formated prefix.StrInG (ny.ASe24sa)
+		keyStringLength: 7, // use these two fields to control complexity of authTokens
+		useWhere: 'onRun', // hook where to excecute (onRun||onBeforeAction||onAfterAction||onRerun)
+		useOnly:['download', 'about'], // filter to ONLY SOME specific route(s)
+		useExcept:[] // use on ALL ROUTES EXCEPT SOME specific ones - EXCEPT will override ONLY(!)
 	});
 }
 ```
@@ -51,11 +51,8 @@ Router.route('/about', {where: 'client'});
 Router.route('/download', {where: 'server'}).get(function () {
   this.response.end('Yeah, get request working...\n');
 });
-
 ```
 
-4.) Find your personal ApiKey in `Meteor.user().profile.apiKey`
+4.) Look for your personal ApiKey in `Meteor.user().profile.apiKey`
 
-5.) Whenever calling a route that needs the authToken **add `?key=YOURAPIKEY` to the URI**.
-
-**That's it**
+5.) Whenever calling a route that needs the ApiKey **add `?key=YOURAPIKEY` to the URI**.
