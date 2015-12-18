@@ -38,6 +38,8 @@ if (Meteor.isClient) {
   var clientRequire = function() {
     var route = this;
     var authToken = route.params.query.key;
+
+
     if (!authToken || !route.params.query) {
       Blaze.renderWithData("401 - Request denied. AuthToken is missing!", null, document.body);
       route.stop();
@@ -46,6 +48,8 @@ if (Meteor.isClient) {
       route.stop();
     } else {
       Meteor.call('checkApiKey', authToken, function(err, res) {
+
+        console.log(authToken);
         if (!err && res) {
           route.render();
           // @todo - decrease access quota
@@ -88,11 +92,35 @@ if (Meteor.isServer) {
       } else if (query.key.length === 0) {
         res.end("401 - Request denied. AuthToken is missing!");
       } else {
-        var hasApiKey = APIStorage.findOne({auth: query.key});
-        if (hasApiKey && typeof hasApiKey === 'object') {
-          // console.log('Middleware successfully called on server (' + APISetup.settings.useWhere + ') with ' + req.method + ' of url: ' + req.url + ' using key ' + query.key);
-          // @todo - decrease access quota
-          that.next();
+
+
+
+
+        var keyfound = APIStorage.findOne({auth: query.key});
+        if (keyfound && typeof keyfound === 'object') {
+          var range = moment().format('YYYY-MM');
+          var stats = APIStats.update({ref: keyfound.host, "ranges.rangePeriod": range}, {$inc: {"ranges.$.quotaCount": -1}});
+          var count = APIStats.find({ref: keyfound.host, "ranges.rangePeriod": range}, {fields: {"ranges.$": 1}}).fetch();
+          var currentCount = _.findWhere(count[0].ranges, {rangePeriod: range});
+
+          if (currentCount && currentCount.quotaCount >= 1) {
+            var day = moment().format('YYYY-MM-DD');
+            var accesslog = APIAccess.find({ref: keyfound.host, "log.day": day}, {fields: {"log.$": 1}}).fetch();
+            // APIAccess.insert({ref:user, log:[quotaObject], createdAt:moment().toISOString()});
+            if (!accesslog) {
+              console.log('no accesslog for ' + day);
+            } else {
+              console.log(accesslog);
+            }
+            // var access = APIStats.update({ref:keyfound.host, "log.day":day},{$inc:{"log.$.count":1}});
+            // console.log(count);
+            console.log('current currentCount.quotaCount left for ' + keyfound.host + ' = ' + currentCount.quotaCount);
+
+            that.next();
+
+          } else {
+              res.end("401 - Request denied. Quota limit exceeded!");
+          }
         } else {
           res.end("401 - Request denied. AuthToken not found!");
         }
@@ -160,9 +188,10 @@ if (Meteor.isServer) {
         // console.log('@todo - remove all users.profile.apiKey');
       },
       'checkApiKey': function(key) {
+
         var keyfound = APIStorage.findOne({auth: key});
 
-        if (!keyfound && typeof keyfound === 'object') {
+        if (keyfound && typeof keyfound === 'object') {
           var range = moment().format('YYYY-MM');
           var stats = APIStats.update({ref: keyfound.host, "ranges.rangePeriod": range}, {$inc: {"ranges.$.quotaCount": -1}});
           var count = APIStats.find({ref: keyfound.host, "ranges.rangePeriod": range}, {fields: {"ranges.$": 1}}).fetch();
@@ -188,6 +217,7 @@ if (Meteor.isServer) {
         } else {
           throw new Meteor.Error(401, '401 - Request denied. AuthToken not found!');
         }
+
       }
   });
 }
