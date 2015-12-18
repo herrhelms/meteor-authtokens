@@ -7,7 +7,7 @@ Package.describe({
 
 Package.onUse(function(api) {
     api.versionsFrom('1.0.2.1');
-    api.use(['momentjs:moment@2.9.0', 'templating', 'less', 'underscore', 'random']);
+    api.use(['momentjs:moment@2.9.0', 'templating', 'less@2.5.1', 'underscore', 'random']);
     api.imply('iron:router')
     api.addFiles(['meteor-authtokens.less', 'meteor-authtokens.html', 'meteor-authtokens.js']);
     api.export(['APISetup']);
