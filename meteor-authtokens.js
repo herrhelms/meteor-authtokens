@@ -34,6 +34,38 @@ if (Meteor.isClient) {
     } else if (APISetup.settings.useWhere && filter){
       Router[APISetup.settings.useWhere](clientRequire, filter);
     }
+
+    // build admin route
+    var adminRoute = APISetup.settings.adminRoute || 'apiadmin';
+    Router.route('/' + adminRoute, {
+      onBeforeAction:function() {
+        this.next();
+      },
+      waitOn:function() {
+        return [
+          function() { return Meteor.subscribe('subscribe_storage'); },
+          function() { return Meteor.subscribe('subscribe_stats'); },
+          function() { return Meteor.subscribe('subscribe_history'); },
+          function() { return Meteor.subscribe('subscribe_access'); }
+        ];
+      },
+      action:function() {
+        if(this.ready()) {
+          this.render('_keyAdmin')
+        } else {
+          this.render('_keyAdminLoading')
+        }
+      },
+      data:function() {
+        return {
+          storage: APIStorage.find(),
+          stats: APIStats.find(),
+          history: APIHistory.find(),
+          access: APIAccess.find()
+        }
+      }
+    });
+
   });
 
   var clientRequire = function() {
@@ -189,6 +221,10 @@ if (Meteor.isServer) {
   };
 
   Meteor.methods({
+    'quotaEmpty': function(range, owner, stats) {
+      console.log('quota is gone for ...' + owner);
+      // console.log('@todo - send email to owner');
+    },
     'quotaReset': function(range, owner, stats) {
       console.log('quota is gone for ...' + owner);
       // console.log('@todo - resetting stats...');
@@ -198,13 +234,13 @@ if (Meteor.isServer) {
       return keyfound.quotas;
     },
     'resetAll': function(uid) {
-      // careful here!
-      /*
+      // careful there, peter!
         APIStorage.remove({});
         APIStats.remove({});
         APIHistory.remove({});
         APIAccess.remove({});
         Meteor.users.remove({});
+      /*
       */
       return true;
     },
@@ -223,4 +259,19 @@ if (Meteor.isServer) {
       }
     }
   });
+
+  // publications
+  Meteor.publish('subscribe_storage', function () {
+    return APIStorage.find();
+  });
+  Meteor.publish('subscribe_stats', function () {
+    return APIStats.find();
+  });
+  Meteor.publish('subscribe_history', function () {
+    return APIHistory.find();
+  });
+  Meteor.publish('subscribe_access', function () {
+    return APIAccess.find();
+  });
+
 }

@@ -1,11 +1,51 @@
 <template name="_keyNotFound">
-
+  <div style="width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="font-size: 18pt; color: #999;">
+      Oops, your access token (ApiKey) could not be found."
+    </div>
+  </div>
 </template>
 
 <template name="_keyIsWrong">
-
+  <div style="width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="font-size: 18pt; color: #999;">
+      Oops, looks like your access token (ApiKey) is wrong."
+    </div>
+  </div>
 </template>
 
 <template name="_quotaIsGone">
-
+  <div style="width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="font-size: 18pt; color: #999;">
+      Oops, quota limit exceeded! <a href="{{topupLink}}" class="top-up-link">Click here to top-up</a>."
+    </div>
+  </div>
 </template>
+
+<template name="_keyAdminLoading">
+  Loading admin interface...
+</template>
+
+
+<template name="_keyAdmin">
+
+<ul>
+  <li></li>
+  <li></li>
+  <li></li>
+</ul>
+<hr>
+<table>
+  <thead>
+    <th></th>
+    <th></th>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</template>
+

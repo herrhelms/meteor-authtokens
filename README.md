@@ -57,7 +57,7 @@ Router.route('/download', {where: 'server'}).get(function () {
 
 4.) Look for your personal ApiKey in `Meteor.user().profile.apiKey`
 
-5.) Whenever calling a route that needs the ApiKey **add `?key=YOURAPIKEY` to the URI**.
+5.) Whenever calling a route that needs the ApiKey add **`?key=YOURAPIKEY`** to the URI.
 
 ## Next steps
 
