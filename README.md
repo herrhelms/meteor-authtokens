@@ -36,8 +36,10 @@ if (Meteor.isServer) {
 		keyStringLength: 7, // use these two fields to control complexity of authTokens
 		useWhere: 'onRun', // hook where to excecute (onRun||onBeforeAction||onAfterAction||onRerun)
 		useOnly:['download', 'about'], // filter to ONLY SOME specific route(s)
-		useExcept:[] // use on ALL ROUTES EXCEPT SOME specific ones - EXCEPT will override ONLY(!)
-	});
+		useExcept:[], // use on ALL ROUTES EXCEPT SOME specific ones - EXCEPT will override ONLY(!)
+	  noKeyTemplate: 'noaccess', // template to use client side if no ?key=
+  	wrongKeyTemplate: 'wrongaccess' // template to use client side if wrong ?key=
+  });
 }
 ```
 
