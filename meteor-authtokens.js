@@ -125,26 +125,23 @@ if (Meteor.isServer) {
   }
 
   // set current quota minus one
-  var modifyCurrentQuota = function(keyfound) {
+  var modifyCurrentQuota = function(key) {
     var day = moment().format('YYYY-MM-DD');
-    var accesslog = APIAccess.find({ref: keyfound.host, "log.day": day}, {fields: {"log.$": 1}}).fetch();
-    // APIAccess.insert({ref:user, log:[quotaObject], createdAt:moment().toISOString()});
-    if (!accesslog) {
-      console.log('no accesslog for ' + day);
+    var accesslog = APIAccess.find({ref: key.host, "log.day": day}).fetch();
+    if (accesslog.length === 0) {
+      APIAccess.insert({ref:key.host, "log": {"day": day, "count": 1}});
     } else {
-      console.log(accesslog);
+      APIAccess.update({ref:key.host, "log.day":day},{$inc:{"log.count":1}});
     }
-    // var access = APIStats.update({ref:keyfound.host, "log.day":day},{$inc:{"log.$.count":1}});
-    // console.log(count);
     return;
   }
 
   // build ApiKey for user
   var setApiKey = function(user) {
     var auth = null;
-    if (APISetup.settings.keyPrefixLength && APISetup.settings.keyPrefixLength.length > 0) {
+    if (APISetup.settings.keyPrefixLength && APISetup.settings.keyStringLength) {
       auth = Random.id(APISetup.settings.keyPrefixLength).toLowerCase() + '.' + Random.id(APISetup.settings.keyStringLength);
-    } else if (APISetup.settings.keyStringLength && APISetup.settings.keyStringLength.length > 0) {
+    } else if (APISetup.settings.keyStringLength && !APISetup.settings.keyPrefixLength) {
       auth = Random.id(APISetup.settings.keyStringLength);
     } else {
       auth = Random.id(10)
@@ -200,12 +197,16 @@ if (Meteor.isServer) {
       var keyfound = APIStorage.findOne(storageid);
       return keyfound.quotas;
     },
-    'resetAll': function() {
-      APIStorage.remove({});
-      APIStats.remove({});
-      APIHistory.remove({});
-      APIAccess.remove({});
-      // console.log('@todo - remove all users.profile.apiKey');
+    'resetAll': function(uid) {
+      // careful here!
+      /*
+        APIStorage.remove({});
+        APIStats.remove({});
+        APIHistory.remove({});
+        APIAccess.remove({});
+        Meteor.users.remove({});
+      */
+      return true;
     },
     'checkApiKey': function(key) {
       var keyObject = APIStorage.findOne({auth: key});
