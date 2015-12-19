@@ -16,18 +16,22 @@ APISetup = {
 this.APISetup = APISetup;
 
 if (Meteor.isClient) {
+  // Meteor.call('resetAll', Meteor.userId(), function (error, result) {});
   Meteor.startup(function () {
+    // set filters
     if (APISetup.settings.useOnly && APISetup.settings.useOnly.length > 0) {
       filter = {only: APISetup.settings.useOnly};
     } else if (APISetup.settings.useExcept && APISetup.settings.useExcept.length > 0) {
       filter = {except: APISetup.settings.useExcept};
     }
+
     // helper fixing the onBeforeAction notice
     if (APISetup.settings.useWhere === 'onRun') {
       Router.onBeforeAction(function() {
         this.next();
       });
     }
+
     // settings filters
     if (APISetup.settings.useWhere && !filter) {
       Router[APISetup.settings.useWhere](clientRequire);
@@ -65,24 +69,16 @@ if (Meteor.isClient) {
         }
       }
     });
-
   });
 
   var clientRequire = function() {
     var route = this;
     var authToken = route.params.query.key;
-    if (!authToken || !route.params.query) {
-      if (APISetup.settings.noKeyTemplate && Template[APISetup.settings.noKeyTemplate]) {
-        UI.insert(UI.render(Template[APISetup.settings.noKeyTemplate]), document.body);
+    if (!authToken || !route.params.query || authToken === 0) {
+      if (APISetup.settings.noKeyTemplate && APISetup.settings.noKeyTemplate !== null  && Template[APISetup.settings.noKeyTemplate]) {
+        Blaze.renderWithData(Template[APISetup.settings.noKeyTemplate], null, document.body);
       } else {
-        Blaze.renderWithData("401 - Request denied. AuthToken is missing!", null, document.body);
-      }
-      route.stop();
-    } else if (authToken === 0) {
-      if (APISetup.settings.noKeyTemplate && Template[APISetup.settings.noKeyTemplate]) {
-        UI.insert(UI.render(Template[APISetup.settings.noKeyTemplate]), document.body);
-      } else {
-        Blaze.renderWithData("401 - Request denied. AuthToken is missing!", null, document.body);
+        Blaze.renderWithData(Template['_keyNotFound'], null, document.body);
       }
       route.stop();
     } else {
@@ -90,10 +86,19 @@ if (Meteor.isClient) {
         if (!err && res) {
           route.render();
         } else {
-          if (APISetup.settings.wrongKeyTemplate && Template[APISetup.settings.wrongKeyTemplate]) {
-            UI.insert(UI.render(Template[APISetup.settings.wrongKeyTemplate]), document.body);
+          if (APISetup.settings.wrongKeyTemplate && APISetup.settings.wrongKeyTemplate !== null && Template[APISetup.settings.wrongKeyTemplate]) {
+            Blaze.renderWithData(Template[APISetup.settings.wrongKeyTemplate], null, document.body);
           } else {
-            Blaze.renderWithData(err.reason, null, document.body);
+            if (err.error === 402) {
+              if (APISetup.settings.emptyQuotaTemplate && APISetup.settings.emptyQuotaTemplate !== null && Template[APISetup.settings.emptyQuotaTemplate]) {
+                Blaze.renderWithData(Template[APISetup.settings.emptyQuotaTemplate], {reason: err.reason}, document.body);
+              } else {
+                var link = APISetup.settings.resetQuotaLink || null;
+                Blaze.renderWithData(Template['_quotaIsGone'], {reason: err.reason, topuplink: link}, document.body);
+              }
+            } else {
+              Blaze.renderWithData(Template['_keyError'], {reason: err.reason}, document.body);
+            }
           }
           route.stop();
         }
@@ -139,15 +144,15 @@ if (Meteor.isServer) {
           modifyCurrentQuota(keyObject);
           that.next();
         } else {
-            res.end("401 - Request denied. Quota limit exceeded!");
+          res.end("Request denied. Quota limit exceeded!");
         }
       } else {
-        res.end("401 - Request denied. AuthToken not found!");
+        res.end("Request denied. ApiKey could not be found.");
       }
     }
   };
 
-  // check if we're still within current quota
+  // check if still within current quota
   var checkCurrentQuota = function(key) {
     var range = moment().format('YYYY-MM');
     var stats = APIStats.update({ref: key.host, "ranges.rangePeriod": range}, {$inc: {"ranges.$.quotaCount": -1}});
@@ -156,7 +161,7 @@ if (Meteor.isServer) {
     return currentCount;
   }
 
-  // set current quota minus one
+  // set current quota
   var modifyCurrentQuota = function(key) {
     var day = moment().format('YYYY-MM-DD');
     var accesslog = APIAccess.find({ref: key.host, "log.day": day}).fetch();
@@ -168,7 +173,7 @@ if (Meteor.isServer) {
     return;
   }
 
-  // build ApiKey for user
+  // build key for users
   var setApiKey = function(user) {
     var auth = null;
     if (APISetup.settings.keyPrefixLength && APISetup.settings.keyStringLength) {
@@ -195,7 +200,6 @@ if (Meteor.isServer) {
     };
 
     var shortName = null;
-
     if (APISetup.settings.quotaRange === 'day') {
       shortName = moment().format('YYYY-MM-DD');
     } else if (APISetup.settings.quotaRange === 'month') {
@@ -216,10 +220,10 @@ if (Meteor.isServer) {
 
     APIHistory.insert({ref: apiid, action: 'add', type: 'token', msg: 'token.created', createdAt: moment().toISOString(), createdFor: user});
     APIStats.insert({ref: user, ranges: [quotaObject], isActive: true, createdAt: moment().toISOString()});
-
     return auth;
   };
 
+  // server methods
   Meteor.methods({
     'quotaEmpty': function(range, owner, stats) {
       console.log('quota is gone for ...' + owner);
@@ -252,10 +256,10 @@ if (Meteor.isServer) {
           modifyCurrentQuota(keyObject);
           return keyObject.auth;
         } else {
-          throw new Meteor.Error(401, '401 - Request denied. Quota limit exceeded!');
+          throw new Meteor.Error(402, 'Request denied. Quota limit exceeded!');
         }
       } else {
-        throw new Meteor.Error(401, '401 - Request denied. AuthToken not found!');
+        throw new Meteor.Error(401, 'Request denied. ApiKey not found!');
       }
     }
   });
@@ -273,5 +277,4 @@ if (Meteor.isServer) {
   Meteor.publish('subscribe_access', function () {
     return APIAccess.find();
   });
-
 }

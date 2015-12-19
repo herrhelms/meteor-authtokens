@@ -1,7 +1,4 @@
 # meteor-authtokens
-
-**Warning:** As of December 18th 2015 this is **WIP until further notice**. Use at own risk.
-
 This package provides a lightweight quota and authToken eco-system (ApiKeys) for your meteor project.
 It depends and works well with `iron:router` on defined client and server routes.
 
@@ -37,8 +34,10 @@ if (Meteor.isServer) {
 		useWhere: 'onRun', // hook where to excecute (onRun||onBeforeAction||onAfterAction||onRerun)
 		useOnly:['download', 'about'], // filter to ONLY SOME specific route(s)
 		useExcept:[], // use on ALL ROUTES EXCEPT SOME specific ones - EXCEPT will override ONLY(!)
-		noKeyTemplate: 'noaccess', // template to use client side if no ?key=
-		wrongKeyTemplate: 'wrongaccess' // template to use client side if wrong ?key=
+		noKeyTemplate: null, // template to use client side if no ?key=
+		wrongKeyTemplate: null, // template to use client side if wrong ?key=
+    emptyQuotaTemplate: null // template to use client side, when current quota is gone
+    resetQuotaLink: null // absolute URI where to reset / top-up current quota
   });
 }
 ```
@@ -57,10 +56,14 @@ Router.route('/download', {where: 'server'}).get(function () {
 
 4.) Look for your personal ApiKey in `Meteor.user().profile.apiKey`
 
-5.) Whenever calling a route that needs the ApiKey add **`?key=YOURAPIKEY`** to the URI.
+5.) Run `meteor remove autopublish` (You would not want to have that enabled in production evironment anyways.)
+
+6.) Whenever calling a route that needs the ApiKey add **`?key=YOURAPIKEY`** to the URI.
 
 ## Next steps
+Couple of things this package should learn in the near future... (WIP)
 
- - [ ] Admin views for quotas (role based)
- - [ ] Send optional emails if quota is almost empty
+ - [ ] Admin views for quotas (role based - `alanning:roles@1.2.14`)
+ - [ ] Defaults/Settings for different quota per role
+ - [ ] Send optional emails if quota is almost empty (Define *almost*)
  - [x] predefined templates `_keyNotFound`, `_keyIsWrong`, `_quotaIsGone`,

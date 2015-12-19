@@ -1,23 +1,31 @@
 <template name="_keyNotFound">
   <div style="width: 600px; margin: 0 auto; padding: 20px;">
-    <div style="font-size: 18pt; color: #999;">
-      Oops, your access token (ApiKey) could not be found."
+    <div style="font-size: 18pt; color: #999; text-align: center;">
+      Request denied. ApiKey is missing.
     </div>
   </div>
 </template>
 
 <template name="_keyIsWrong">
   <div style="width: 600px; margin: 0 auto; padding: 20px;">
-    <div style="font-size: 18pt; color: #999;">
-      Oops, looks like your access token (ApiKey) is wrong."
+    <div style="font-size: 18pt; color: #999; text-align: center;">
+      Request denied. ApiKey is wrong.
+    </div>
+  </div>
+</template>
+
+<template name="_keyError">
+  <div style="width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="font-size: 18pt; color: #999; text-align: center;">
+      {{reason}}
     </div>
   </div>
 </template>
 
 <template name="_quotaIsGone">
   <div style="width: 600px; margin: 0 auto; padding: 20px;">
-    <div style="font-size: 18pt; color: #999;">
-      Oops, quota limit exceeded! <a href="{{topupLink}}" class="top-up-link">Click here to top-up</a>."
+    <div style="font-size: 18pt; color: #999; text-align: center;">
+      {{reason}} {{#if topuplink}}<a href="{{topuplink}}" class="top-up-link">Click here to top-up</a>{{/if}}.
     </div>
   </div>
 </template>
@@ -27,14 +35,7 @@
 </template>
 
 
-<template name="_keyAdmin">
-
-<ul>
-  <li></li>
-  <li></li>
-  <li></li>
-</ul>
-<hr>
+<template name="_keyAdminTable">
 <table>
   <thead>
     <th></th>
@@ -47,5 +48,15 @@
     </tr>
   </tbody>
 </table>
+</template>
+
+<template name="_keyAdmin">
+  <ul id="admin-btn-group">
+    <li><button class="active">User Quotas</button></li>
+    <li><button>Access History</button></li>
+    <li><button>Settings</button></li>
+  </ul>
+  <hr>
+  OK
 </template>
 
